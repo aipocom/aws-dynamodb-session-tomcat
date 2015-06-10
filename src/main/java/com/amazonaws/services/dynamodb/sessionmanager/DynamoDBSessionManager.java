@@ -15,11 +15,13 @@
 package com.amazonaws.services.dynamodb.sessionmanager;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.Session;
 import org.apache.catalina.session.PersistentManagerBase;
+import org.apache.catalina.session.StandardSession;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 
@@ -67,6 +69,9 @@ public class DynamoDBSessionManager extends PersistentManagerBase {
     private Integer proxyPort;
 
     private static final Log logger = LogFactory.getLog(DynamoDBSessionManager.class);
+
+    private static final String PERSISTED_LAST_ACCESSED_TIME =
+            "org.apache.catalina.session.PersistentManagerBase.persistedLastAccessedTime";
 
     public DynamoDBSessionManager() {
         setSaveOnRestart(true);
@@ -146,6 +151,11 @@ public class DynamoDBSessionManager extends PersistentManagerBase {
         setStore(new DynamoDBSessionStore(sessionStorage));
         new ExpiredSessionReaperExecutor(new ExpiredSessionReaper(sessionStorage));
     }
+
+	public void unload() {
+		// skip unload
+	}
+
 
     private AmazonDynamoDBClient createDynamoClient() {
         AWSCredentialsProvider credentialsProvider = initCredentials();
