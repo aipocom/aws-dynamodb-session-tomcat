@@ -70,9 +70,6 @@ public class DynamoDBSessionManager extends PersistentManagerBase {
 
     private static final Log logger = LogFactory.getLog(DynamoDBSessionManager.class);
 
-    private static final String PERSISTED_LAST_ACCESSED_TIME =
-            "org.apache.catalina.session.PersistentManagerBase.persistedLastAccessedTime";
-
     public DynamoDBSessionManager() {
         setSaveOnRestart(true);
 
