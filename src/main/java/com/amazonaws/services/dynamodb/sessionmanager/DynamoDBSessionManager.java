@@ -249,6 +249,6 @@ public class DynamoDBSessionManager extends PersistentManagerBase {
 
     private SessionConverter getSessionConverter() {
       ClassLoader classLoader = getContext().getLoader().getClassLoader();
-      return SessionConverter.createDefaultSessionConverter(this, classLoader,maxInactiveInterval);
+      return SessionConverter.createDefaultSessionConverter(this, classLoader);
     }
 }

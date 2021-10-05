@@ -46,8 +46,8 @@ public final class SessionConverter implements TomcatSessionConverter, DynamoSes
      * Factory method to create a SessionConverter with the default implementation of
      * TomcatSessionConverter and DynamoSessionConverter
      */
-    public static SessionConverter createDefaultSessionConverter(Manager manager, ClassLoader classLoader, int maxInactiveInterval) {
-        return new SessionConverter(new DefaultTomcatSessionConverter(manager, classLoader, maxInactiveInterval),
+    public static SessionConverter createDefaultSessionConverter(Manager manager, ClassLoader classLoader) {
+        return new SessionConverter(new DefaultTomcatSessionConverter(manager, classLoader),
                 new DefaultDynamoSessionItemConverter());
     }
 

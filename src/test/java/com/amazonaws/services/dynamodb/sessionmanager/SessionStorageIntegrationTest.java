@@ -30,14 +30,13 @@ import com.amazonaws.services.dynamodb.sessionmanager.converters.TestSessionFact
 
 public class SessionStorageIntegrationTest extends SessionStorageIntegrationTestBase {
 
-    private static final int MAX_INACTIVE_INTERVAL = 60;
     private static DynamoSessionStorage sessionStorage;
     private static final TestSessionFactory SESSION_FACTORY = new TestSessionFactory();
 
     @Before
     public void setup() throws Exception {
         sessionStorage = createSessionStorage(SessionConverter
-                .createDefaultSessionConverter(SESSION_FACTORY.getManager(), getClass().getClassLoader(),MAX_INACTIVE_INTERVAL));
+                .createDefaultSessionConverter(SESSION_FACTORY.getManager(), getClass().getClassLoader()));
     }
 
     @Test

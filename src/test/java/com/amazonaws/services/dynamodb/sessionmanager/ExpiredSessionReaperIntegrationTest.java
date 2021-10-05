@@ -27,13 +27,12 @@ import com.amazonaws.services.dynamodb.sessionmanager.converters.TestSessionFact
 
 public class ExpiredSessionReaperIntegrationTest extends SessionStorageIntegrationTestBase {
 
-    private static final int MAX_INACTIVE_INTERVAL = 60;
     private DynamoSessionStorage sessionStorage;
 
     @Before
     public void setup() {
         sessionStorage = createSessionStorage(SessionConverter
-                .createDefaultSessionConverter(new TestSessionFactory().getManager(), getClass().getClassLoader(),MAX_INACTIVE_INTERVAL));
+                .createDefaultSessionConverter(new TestSessionFactory().getManager(), getClass().getClassLoader()));
     }
 
     /**
@@ -50,6 +49,7 @@ public class ExpiredSessionReaperIntegrationTest extends SessionStorageIntegrati
         new ExpiredSessionReaper(sessionStorage).run();
 
         assertNotNull(sessionStorage.loadSession(activeSession.getId()));
+//        assertNull(sessionStorage.loadSession(expiredSession.getId()));
         assertNotNull(sessionStorage.loadSession(expiredSession.getId()));
         assertNotNull(sessionStorage.loadSession(immortalSession.getId()));
     }

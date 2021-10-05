@@ -30,14 +30,12 @@ public class DefaultTomcatSessionConverter implements TomcatSessionConverter {
 
     private final ClassLoader classLoader;
     private final Manager manager;
-    private final int maxInactiveInterval;
 
-    public DefaultTomcatSessionConverter(Manager manager, ClassLoader classLoader, int maxInactiveInterval) {
+    public DefaultTomcatSessionConverter(Manager manager, ClassLoader classLoader) {
         ValidatorUtils.nonNull(manager, "Manager");
         ValidatorUtils.nonNull(classLoader, "ClassLoader");
         this.classLoader = classLoader;
         this.manager = manager;
-        this.maxInactiveInterval = maxInactiveInterval;
     }
 
     @Override
