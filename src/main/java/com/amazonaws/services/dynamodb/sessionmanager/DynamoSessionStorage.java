@@ -68,6 +68,7 @@ public class DynamoSessionStorage {
         mapper.save(sessionConverter.toSessionItem(session));
     }
 
+    @Deprecated
     public Iterable<Session> listSessions() {
         PaginatedScanList<DynamoSessionItem> sessions = mapper.scan(DynamoSessionItem.class,
                 new DynamoDBScanExpression());
