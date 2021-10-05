@@ -27,18 +27,12 @@ public class DynamoSessionItem {
 
     public static final String SESSION_ID_ATTRIBUTE_NAME = "sessionId";
     public static final String SESSION_DATA_ATTRIBUTE_NAME = "sessionData";
-    public static final String CREATED_AT_ATTRIBUTE_NAME = "createdAt";
-    public static final String LAST_UPDATED_AT_ATTRIBUTE_NAME = "lastUpdatedAt";
     public static final String EXPIRED_AT_ATTRIBUTE_NAME = "expiredAt";
     public static final String EXPIRED_DATE_ATTRIBUTE_NAME = "expiredDate";
     public static final String EXPIRED_INDEX_NAME = "expired";
 
     private String sessionId;
     private ByteBuffer sessionData;
-
-    // Legacy item attributes
-    private long lastUpdatedTime;
-    private long createdTime;
 
     private long expiredAt;
     private String expiredDate;
@@ -66,24 +60,6 @@ public class DynamoSessionItem {
 
     public void setSessionData(ByteBuffer sessionData) {
         this.sessionData = sessionData;
-    }
-
-    @DynamoDBAttribute(attributeName = LAST_UPDATED_AT_ATTRIBUTE_NAME)
-    public long getLastUpdatedTime() {
-        return lastUpdatedTime;
-    }
-
-    public void setLastUpdatedTime(long lastUpdatedTime) {
-        this.lastUpdatedTime = lastUpdatedTime;
-    }
-
-    @DynamoDBAttribute(attributeName = CREATED_AT_ATTRIBUTE_NAME)
-    public long getCreatedTime() {
-        return createdTime;
-    }
-
-    public void setCreatedTime(long createdTime) {
-        this.createdTime = createdTime;
     }
 
     @DynamoDBIndexRangeKey(globalSecondaryIndexName = EXPIRED_INDEX_NAME, attributeName = EXPIRED_AT_ATTRIBUTE_NAME)

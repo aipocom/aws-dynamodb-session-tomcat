@@ -19,10 +19,10 @@ import java.io.ObjectInputStream;
 
 import org.apache.catalina.Manager;
 import org.apache.catalina.Session;
+import org.apache.catalina.session.StandardSession;
 import org.apache.catalina.util.CustomObjectInputStream;
 
 import com.amazonaws.services.dynamodb.sessionmanager.DynamoSessionItem;
-import com.amazonaws.services.dynamodb.sessionmanager.converters.LegacyTomcatSessionConverter.LegacySession;
 import com.amazonaws.services.dynamodb.sessionmanager.util.ValidatorUtils;
 import com.amazonaws.util.IOUtils;
 
@@ -47,12 +47,8 @@ public class DefaultTomcatSessionConverter implements TomcatSessionConverter {
             ByteArrayInputStream fis = new ByteArrayInputStream(sessionItem.getSessionData().array());
             ois = new CustomObjectInputStream(fis, classLoader);
 
-            LegacySession session = new LegacySession(manager);
-            session.setValid(true);
-            session.setId(sessionItem.getSessionId(), false);
-            session.setCreationTime(sessionItem.getCreatedTime());
-            session.setLastAccessedTime(sessionItem.getLastUpdatedTime());
-            session.setMaxInactiveInterval(maxInactiveInterval);
+
+            StandardSession session = new StandardSession(manager);
             session.readObjectData(ois);
             return session;
         } catch (Exception e) {
