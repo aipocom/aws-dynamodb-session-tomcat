@@ -84,10 +84,15 @@ public class DynamoDBSessionStore extends StoreBase {
     @Override
     public Session load(String id) throws ClassNotFoundException, IOException {
         try {
-            Session session = ((DynamoDBSessionManager) getManager())
-                    .findSessionNoTouch(id);
-            if (session != null && session.isValid()) {
-                return session;
+          Session session =null;
+            try {
+               session = ((DynamoDBSessionManager) getManager())
+                      .findSessionNoTouch(id);
+              if (session != null && session.isValid()) {
+                  return session;
+              }
+            } catch (Throwable t) {
+               // logger.warn("DynamoDBSessionStore#load", t);
             }
             session = tryLoadSession(id);
             if (session == null) {

@@ -50,7 +50,7 @@ public class ExpiredSessionReaperIntegrationTest extends SessionStorageIntegrati
         new ExpiredSessionReaper(sessionStorage).run();
 
         assertNotNull(sessionStorage.loadSession(activeSession.getId()));
-        assertNull(sessionStorage.loadSession(expiredSession.getId()));
+        assertNotNull(sessionStorage.loadSession(expiredSession.getId()));
         assertNotNull(sessionStorage.loadSession(immortalSession.getId()));
     }
 
