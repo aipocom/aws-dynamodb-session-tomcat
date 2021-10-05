@@ -17,12 +17,14 @@ package com.amazonaws.services.dynamodb.sessionmanager;
 import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertThat;
 
+import java.io.File;
 import java.util.List;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
+import com.amazonaws.auth.PropertiesCredentials;
 import com.amazonaws.services.dynamodb.sessionmanager.converters.SessionConverter;
 import com.amazonaws.services.dynamodb.sessionmanager.util.DynamoUtils;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
@@ -40,11 +42,15 @@ public class SessionStorageIntegrationTestBase extends AWSTestBase {
     private static AmazonDynamoDBClient dynamoClient;
     private static DynamoDBMapper dynamoMapper;
     private static String tableName;
+    private static PropertiesCredentials credentials ;
+    private static String ENDPOINT =  "http://localhost:8000";
 
     @BeforeClass
     public static final void baseSetupFixture() throws Exception {
-        setUpCredentials();
+        File file = new File(System.getProperty("user.home") + "/.aws/awsTestAccount.properties");
+        credentials = new PropertiesCredentials(file);
         dynamoClient = new AmazonDynamoDBClient(credentials);
+//        dynamoClient.setEndpoint(ENDPOINT);
         tableName = getUniqueTableName();
         DynamoUtils.createSessionTable(dynamoClient, tableName, 10L, 10L);
         Tables.waitForTableToBecomeActive(dynamoClient, tableName);

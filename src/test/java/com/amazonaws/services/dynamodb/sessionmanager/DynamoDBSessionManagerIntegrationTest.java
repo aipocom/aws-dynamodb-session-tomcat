@@ -14,11 +14,14 @@
  */
 package com.amazonaws.services.dynamodb.sessionmanager;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
-import com.amazonaws.services.dynamodbv2.model.DescribeTableRequest;
-import com.amazonaws.services.dynamodbv2.model.TableDescription;
-import com.amazonaws.test.AWSTestBase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.Session;
@@ -29,14 +32,12 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.auth.PropertiesCredentials;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.services.dynamodbv2.model.DescribeTableRequest;
+import com.amazonaws.services.dynamodbv2.model.TableDescription;
+import com.amazonaws.test.AWSTestBase;
 
 public class DynamoDBSessionManagerIntegrationTest extends AWSTestBase {
 
@@ -50,11 +51,16 @@ public class DynamoDBSessionManagerIntegrationTest extends AWSTestBase {
 
     private String sessionTableName;
 
+    private static PropertiesCredentials credentials;
+    private static String ENDPOINT =  "http://localhost:8000";
+
     /** Starts up an embedded Tomcat process for testing. */
     @BeforeClass
     public static void setupFixture() throws Exception {
-        setUpCredentials();
+        File file = new File(System.getProperty("user.home") + "/.aws/awsTestAccount.properties");
+        credentials = new PropertiesCredentials(file);
         dynamo = new AmazonDynamoDBClient(credentials);
+//        dynamo.setEndpoint(ENDPOINT);
 
         String workingDir = System.getProperty("java.io.tmpdir");
         File webappDirectory = Files.createTempDirectory(Paths.get(workingDir), null).toFile();
@@ -106,6 +112,8 @@ public class DynamoDBSessionManagerIntegrationTest extends AWSTestBase {
         DynamoDBSessionManager sessionManager = new DynamoDBSessionManager();
         sessionManager.setAwsCredentialsFile(System.getProperty("user.home") + "/.aws/awsTestAccount.properties");
         sessionManager.setTable(sessionTableName);
+//        sessionManager.setEndpoint(ENDPOINT);
+
         webapp.setManager(sessionManager);
 
         assertTrue(doesTableExist(sessionTableName));
@@ -178,6 +186,7 @@ public class DynamoDBSessionManagerIntegrationTest extends AWSTestBase {
         sessionManager.setAwsAccessKey(credentials.getAWSAccessKeyId());
         sessionManager.setAwsSecretKey(credentials.getAWSSecretKey());
         sessionManager.setTable(sessionTableName);
+//        sessionManager.setEndpoint(ENDPOINT);
         webapp.setManager(sessionManager);
     }
 
