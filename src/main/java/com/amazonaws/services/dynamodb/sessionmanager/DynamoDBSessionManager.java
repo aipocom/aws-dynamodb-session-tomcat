@@ -16,7 +16,6 @@ package com.amazonaws.services.dynamodb.sessionmanager;
 
 import java.io.File;
 
-import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.Session;
 import org.apache.catalina.session.PersistentManagerBase;
@@ -31,11 +30,7 @@ import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.auth.PropertiesCredentials;
 import com.amazonaws.internal.StaticCredentialsProvider;
 import com.amazonaws.regions.RegionUtils;
-import com.amazonaws.services.dynamodb.sessionmanager.converters.DefaultDynamoSessionItemConverter;
-import com.amazonaws.services.dynamodb.sessionmanager.converters.DefaultTomcatSessionConverter;
-import com.amazonaws.services.dynamodb.sessionmanager.converters.LegacyTomcatSessionConverter;
 import com.amazonaws.services.dynamodb.sessionmanager.converters.SessionConverter;
-import com.amazonaws.services.dynamodb.sessionmanager.converters.TomcatSessionConverterChain;
 import com.amazonaws.services.dynamodb.sessionmanager.util.DynamoUtils;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
@@ -50,9 +45,9 @@ public class DynamoDBSessionManager extends PersistentManagerBase {
 
     public static final String DEFAULT_TABLE_NAME = "Tomcat_SessionState";
 
-    private static final String USER_AGENT = "DynamoSessionManager/2.0";
+    private static final String USER_AGENT = "DynamoSessionManager/2.0.1";
     private static final String name = "AmazonDynamoDBSessionManager";
-    private static final String info = name + "/2.0";
+    private static final String info = name + "/2.0.1";
 
     private String regionId = "us-east-1";
     private String endpoint;
@@ -65,20 +60,17 @@ public class DynamoDBSessionManager extends PersistentManagerBase {
     private String tableName = DEFAULT_TABLE_NAME;
     private String proxyHost;
     private Integer proxyPort;
+    private boolean deleteCorruptSessions = false;
 
     private static final Log logger = LogFactory.getLog(DynamoDBSessionManager.class);
 
     public DynamoDBSessionManager() {
         setSaveOnRestart(true);
 
-        // MaxInactiveInterval controls when sessions are removed from the store
-        setMaxInactiveInterval(60 * 60 * 2); // 2 hours
-
         // MaxIdleBackup controls when sessions are persisted to the store
         setMaxIdleBackup(30); // 30 seconds
     }
 
-    @Override
     public String getInfo() {
         return info;
     }
@@ -136,14 +128,17 @@ public class DynamoDBSessionManager extends PersistentManagerBase {
         return sessions.get(id);
     }
 
+    public void setDeleteCorruptSessions(boolean deleteCorruptSessions) {
+        this.deleteCorruptSessions = deleteCorruptSessions;
+    }
+
     @Override
     protected void initInternal() throws LifecycleException {
-        this.setDistributable(true);
 
         AmazonDynamoDBClient dynamoClient = createDynamoClient();
         initDynamoTable(dynamoClient);
         DynamoSessionStorage sessionStorage = createSessionStorage(dynamoClient);
-        setStore(new DynamoDBSessionStore(sessionStorage));
+        setStore(new DynamoDBSessionStore(sessionStorage, deleteCorruptSessions));
         new ExpiredSessionReaperExecutor(new ExpiredSessionReaper(sessionStorage));
     }
 
@@ -253,31 +248,7 @@ public class DynamoDBSessionManager extends PersistentManagerBase {
     }
 
     private SessionConverter getSessionConverter() {
-        ClassLoader classLoader = getAssociatedContext().getLoader().getClassLoader();
-        LegacyTomcatSessionConverter legacyConverter = new LegacyTomcatSessionConverter(this, classLoader,
-                maxInactiveInterval);
-        DefaultTomcatSessionConverter defaultConverter = new DefaultTomcatSessionConverter(this, classLoader, maxInactiveInterval);
-        // Converter that 'writes' with the new schema but can still read the legacy schema
-        return new SessionConverter(TomcatSessionConverterChain.wrap(defaultConverter, legacyConverter),
-                new DefaultDynamoSessionItemConverter());
-    }
-
-    /**
-     * To be compatible with Tomcat7 we have to call the getContainer method rather than getContext.
-     * The cast is safe as it only makes sense to use a session manager within the context of a
-     * webapp, the Tomcat 8 version of getContainer just delegates to getContext. When Tomcat7 is no
-     * longer supported this can be changed to getContext
-     *
-     * @return The context this manager is associated with
-     */
-    // TODO Inline this method with getManager().getContext() when Tomcat7 is no longer supported
-    private Context getAssociatedContext() {
-        try {
-            return (Context) getContainer();
-        } catch (ClassCastException e) {
-            logger.fatal("Unable to cast " + getClass().getName() + " to a Context."
-                    + " DynamoDB SessionManager can only be used with a Context");
-            throw new IllegalStateException(e);
-        }
+      ClassLoader classLoader = getContext().getLoader().getClassLoader();
+      return SessionConverter.createDefaultSessionConverter(this, classLoader);
     }
 }
