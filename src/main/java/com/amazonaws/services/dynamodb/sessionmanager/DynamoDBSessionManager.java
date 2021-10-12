@@ -69,6 +69,9 @@ public class DynamoDBSessionManager extends PersistentManagerBase {
 
         // MaxIdleBackup controls when sessions are persisted to the store
         setMaxIdleBackup(30); // 30 seconds
+
+        //delete session
+        setDeleteCorruptSessions(true);
     }
 
     public String getInfo() {
