@@ -11,6 +11,7 @@ phases:
     commands:
       - echo Build started on `date`
       - mvn install -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true
+      - mvn deploy -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true
   post_build:
     commands:
       - echo Build completed on `date`
