@@ -7,13 +7,12 @@ phases:
   pre_build:
     commands:
       - export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain aipo --domain-owner 917255366822 --query authorizationToken --output text`
+      - aws codeartifact delete-package --domain aipo --domain-owner 917255366822 --repository aipo-repo --format maven --namespace com.amazonaws --package aws-dynamodb-session-tomcat
   build:
     commands:
       - echo Build started on `date`
       - mvn install -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true
-      - aws codeartifact delete-package --domain aipo --domain-owner 917255366822 --repository aipo-repo --format maven --namespace com.amazonaws --package aws-dynamodb-session-tomcat
-      - aws codeartifact delete-package --domain aipo --domain-owner 917255366822 --repository maven-central-store --format maven --namespace com.amazonaws --package aws-dynamodb-session-tomcat
-      - mvn deploy -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true
+      - mvn deploy -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true -X
   post_build:
     commands:
       - echo Build completed on `date`
