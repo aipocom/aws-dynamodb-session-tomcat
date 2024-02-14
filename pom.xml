@@ -22,6 +22,16 @@
         </license>
     </licenses>
 
+
+<distributionManagement>
+  <repository>
+    <id>aipo-aipo-repo</id>
+    <name>aipo-aipo-repo</name>
+    <url>https://aipo-917255366822.d.codeartifact.ap-northeast-1.amazonaws.com/maven/aipo-repo/</url>
+  </repository>
+</distributionManagement>
+
+
     <developers>
         <developer>
             <id>amazonwebservices</id>
