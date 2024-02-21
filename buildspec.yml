@@ -1,20 +1,15 @@
 version: 0.2
 
 phases:
-  install:
-    commands:
-      - cp ./settings.xml /root/.m2/settings.xml
   pre_build:
     commands:
-      - export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain aipo --domain-owner 917255366822 --query authorizationToken --output text`
+      - cp ./settings.xml /root/.m2/settings.xml
+      - export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain $DOMAIN_ACCOUNT --domain-owner $DOMAIN_OWNER --region ap-northeast-1 --query authorizationToken --output text`
   build:
     commands:
-      - echo Build started on `date`
+      - mvn clean 
       - mvn install -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true
       - mvn deploy -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true
-  post_build:
-    commands:
-      - echo Build completed on `date`
 artifacts:
   files:
     - target/aws-dynamodb-session-tomcat*.jar
