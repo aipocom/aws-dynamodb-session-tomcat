@@ -1,10 +1,14 @@
 version: 0.2
 
 phases:
+  install:
+    runtime-versions:
+      java: corretto8
   pre_build:
     commands:
       - cp ./settings.xml /root/.m2/settings.xml
       - export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain $DOMAIN_ACCOUNT --domain-owner $DOMAIN_OWNER --region ap-northeast-1 --query authorizationToken --output text`
+      - aws codeartifact delete-package --domain $DOMAIN_ACCOUNT --domain-owner $DOMAIN_OWNER --repository $DOMAIN_REPO --format maven --namespace com.amazonaws --package aws-dynamodb-session-tomcat
   build:
     commands:
       - mvn clean 
